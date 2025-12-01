@@ -1,6 +1,7 @@
 ---
-![SS Tampilan](https://github.com/AnTS-Groups/Menty/blob/main/SS/SS_Menty.png?raw=true)
-![SS Tampilan](https://github.com/AnTS-Groups/Menty/blob/main/SS/SS_Menty2.png?raw=true)
+![SS Tampilan](https://github.com/AnTS-Groups/Menty-HackathonAI/blob/main/SS/SS1.png?raw=true)
+![SS Tampilan](https://github.com/AnTS-Groups/Menty-HackathonAI/blob/main/SS/SS2.png?raw=true)
+![SS Tampilan](https://github.com/AnTS-Groups/Menty-HackathonAI/blob/main/SS/SS3.png?raw=true)
 ---
 
 ---
@@ -134,7 +135,7 @@ GROQ_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ### 4. Jalankan Aplikasi
 ```bash
-uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn backend.main:aplikasi --host 0.0.0.0 --port 8000 --reload
 ```
 
 Buka di browser:  
@@ -210,6 +211,7 @@ Buka di browser:
 - [FastAPI Tutorial](https://fastapi.tiangolo.com/)
 - [Web Audio API — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 - Prinsip WHO untuk AI & Kesehatan Mental: *Transparansi, Non-maleficence, Autonomy*
+
 
 
 
