@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menty- Website pertama deteksi depresi</title>
+<meta name="description" content="Alat bantu analisis kesehatan mental berbasis suara. Untuk tujuan edukasi dan kesadaran diri.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+fontFamily: {
+sans: ['Poppins', 'sans-serif'],
+},
+colors: {
+primary: {
+500: '#6366f1',
+600: '#4f46e5',
+},
+wellness: {
+500: '#10b981',
+200: '#a7f3d0',
+}
+}
+}
+}
+}
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.0/dist/cdn.min.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-gray-200 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+<div class="w-full max-w-2xl" x-data="voiceAnalyzer()">
+
+<div class="text-center mb-10 px-4">
+<h1 class="text-3xl md:text-4xl font-bold text-white mb-2">
+<span class="text-primary-400">Menty</span> | Apa Kabar Hari Ini?
+</h1>
+<p class="text-gray-400 text-sm md:text-base max-w-2xl mx-auto mt-4">
+Ceritakan apa yang kamu rasakan. Kami akan mendengarkan — dan menganalisis dengan hati-hati.
+</p>
+
+<div class="mt-6 bg-gray-800 border-l-4 border-amber-500 p-4 rounded-r-lg text-sm">
+<span class="font-medium text-amber-300">ℹ️ Catatan Penting:</span>
+<span class="ml-1">
+Hasil analisis ini <strong>bukan diagnosa medis</strong>. Jika kamu merasa sangat terbebani, segera hubungi profesional kesehatan mental terdekat.
+</span>
+</div>
+</div>
+
+<div id="results-container" class="w-full mb-8 px-2">
+
+<div
+x-show="analysis_result"
+x-transition:enter="transition ease-out duration-500"
+x-transition:enter-start="opacity-0 scale-95"
+x-transition:enter-end="opacity-100 scale-100"
+class="bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-xl p-6 mb-6 shadow-lg"
+>
+<div class="flex items-start gap-3">
+<div class="mt-1 flex-shrink-0">
+<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-wellness-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+</svg>
+</div>
+<div class="flex-1">
+<h2 class="text-xl font-semibold text-wellness-300 mb-3">Hasil Analisis</h2>
+<p class="text-gray-100 whitespace-pre-wrap leading-relaxed" x-html="formatAnalysis(analysis_result)"></p>
+</div>
+</div>
+</div>
+
+<div
+x-show="error_message"
+x-transition
+class="bg-red-900/70 border border-red-800 text-red-200 rounded-xl p-4 mb-6"
+>
+<div class="flex items-start gap-2">
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+</svg>
+<span x-text="error_message"></span>
+</div>
+</div>
+
+<div
+x-show="transcription && !analysis_result && !is_processing"
+x-transition
+class="bg-gray-800/60 border border-gray-700 rounded-xl p-5 mb-6"
+>
+<h3 class="font-medium text-gray-300 mb-3">Transkripsi Suara Anda:</h3>
+<p class="text-gray-200 bg-gray-900/50 p-3 rounded-lg mb-4 text-sm">
+<span x-text="transcription"></span>
+</p>
+<div class="flex flex-col sm:flex-row gap-3">
+<button @click="analyzeTranscription()" class="flex-1 bg-primary-600 hover:bg-primary-500 text-white font-medium py-2.5 px-4 rounded-lg transition">
+Lanjutkan Analisis
+</button>
+<button @click="resetState()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-200 font-medium py-2.5 px-4 rounded-lg transition">
+Batalkan
+</button>
+</div>
+<p class="text-xs text-gray-500 mt-3">
+🔐 Transkripsi hanya diproses di server dan tidak disimpan permanen.
+</p>
+</div>
+</div>
+
+<div class="text-center px-2">
+
+<div class="relative mb-6" :class="{'h-16': isRecording, 'h-0': !isRecording}">
+<div
+x-show="isRecording"
+x-transition
+class="absolute inset-0 flex items-end justify-center gap-1.5 px-4"
+>
+<template x-for="i in 20" :key="i">
+<div
+class="w-1.5 bg-primary-500 rounded-t opacity-70"
+:style="`height: ${getRandomHeight()}px; transition: height 0.1s ease-out;`"
+></div>
+</template>
+</div>
+</div>
+
+<button
+@click="toggleRecording()"
+:disabled="is_processing || is_speaking"
+:class="{
+'bg-red-600 hover:bg-red-500': isRecording,
+'bg-primary-600 hover:bg-primary-500': !isRecording && !is_processing,
+'bg-gray-700 cursor-not-allowed': is_processing
+}"
+class="relative p-6 rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-primary-500/50 transition-all duration-200"
+:aria-label="isRecording ? 'Berhenti merekam' : 'Mulai merekam'"
+>
+<div x-show="!is_processing" class="h-12 w-12 mx-auto">
+<svg x-show="!isRecording" xmlns="http://www.w3.org/2000/svg" class="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+</svg>
+<svg x-show="isRecording" xmlns="http://www.w3.org/2000/svg" class="h-full w-full animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+<circle cx="12" cy="12" r="10" stroke="currentColor"/>
+<circle cx="12" cy="12" r="4" fill="currentColor"/>
+</svg>
+</div>
+<svg x-show="is_processing" class="animate-spin h-12 w-12 mx-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+</svg>
+</button>
+
+<p class="mt-4 text-gray-400 text-sm" x-text="statusText"></p>
+
+<p class="mt-6 text-xs text-gray-500 max-w-md mx-auto">
+Tekan tombol mikrofon, berbicara dengan tenang selama 10–30 detik, lalu tekan lagi untuk berhenti.
+Pastikan lingkungan cukup sunyi agar hasil lebih akurat.
+</p>
+</div>
+</div>
+
+<script>
+function voiceAnalyzer() {
+return {
+isRecording: false,
+is_processing: false,
+transcription: null,
+analysis_result: null,
+error_message: null,
+mediaRecorder: null,
+audioChunks: [],
+recordingStartTime: null,
+get statusText() {
+if (this.is_processing) return "Menganalisis...";
+if (this.isRecording) return "Sedang merekam... (klik untuk berhenti)";
+if (this.transcription && !this.analysis_result) return "Transkripsi siap. Konfirmasi untuk analisis.";
+return "Klik mikrofon, lalu ceritakan perasaanmu hari ini.";
+},
+getRandomHeight() {
+return Math.floor(10 + Math.random() * 40);
+},
+resetState() {
+this.transcription = null;
+this.analysis_result = null;
+this.error_message = null;
+this.audioChunks = [];
+this.recordingStartTime = null;
+if (this.mediaRecorder) {
+this.mediaRecorder.stream.getTracks().forEach(track => track.stop());
+this.mediaRecorder = null;
+}
+this.isRecording = false;
+},
+async toggleRecording() {
+if (this.isRecording) {
+this.stopRecording();
+} else {
+await this.startRecording();
+}
+},
+async startRecording() {
+this.resetState();
+try {
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+this.mediaRecorder.ondataavailable = (e) => {
+if (e.data.size > 0) this.audioChunks.push(e.data);
+};
+this.mediaRecorder.onstop = async () => {
+await this.transcribeAudio();
+};
+this.mediaRecorder.start();
+this.isRecording = true;
+this.recordingStartTime = Date.now();
+setTimeout(() => {
+if (this.isRecording) {
+this.stopRecording();
+this.error_message = "Rekaman otomatis dihentikan setelah 45 detik. Silakan rekam lagi jika perlu.";
+}
+}, 45000);
+} catch (err) {
+this.error_message = "Gagal mengakses mikrofon: " + (err.message || "Pastikan izin mikrofon diberikan.");
+console.error("Error akses mic:", err);
+}
+},
+stopRecording() {
+if (this.mediaRecorder && this.isRecording) {
+const duration = Date.now() - this.recordingStartTime;
+if (duration < 5000) {
+this.error_message = "Rekaman terlalu pendek (minimal 5 detik). Silakan rekam lagi.";
+this.audioChunks = [];
+this.isRecording = false;
+return;
+}
+this.mediaRecorder.stop();
+this.isRecording = false;
+}
+},
+async transcribeAudio() {
+this.is_processing = true;
+this.error_message = null;
+const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+if (audioBlob.size < 1024) {
+this.error_message = "Audio kosong atau terlalu kecil. Rekam lagi.";
+this.is_processing = false;
+return;
+}
+const formData = new FormData();
+formData.append('audio', audioBlob, 'voice.webm');
+try {
+const res = await fetch('/transcribe', {
+method: 'POST',
+body: formData,
+});
+if (!res.ok) {
+const errorText = await res.text();
+this.error_message = `Error server: ${res.status} - ${errorText || "Tidak ada detail."}`;
+console.error("Error respons transkripsi:", errorText);
+return;
+}
+const data = await res.json();
+this.transcription = data.transkripsi;
+this.audioChunks = [];
+} catch (err) {
+this.error_message = "Koneksi gagal: " + (err.message || "Periksa jaringan atau server.");
+console.error("Error fetch transkripsi:", err);
+} finally {
+this.is_processing = false;
+}
+},
+async analyzeTranscription() {
+this.is_processing = true;
+this.error_message = null;
+try {
+const res = await fetch('/analyze_text', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ teks: this.transcription }),
+});
+if (!res.ok) {
+const errorText = await res.text();
+this.error_message = `Error server: ${res.status} - ${errorText || "Tidak ada detail."}`;
+console.error("Error respons analisis:", errorText);
+return;
+}
+const data = await res.json();
+this.analysis_result = data.analisis;
+this.transcription = null;
+} catch (err) {
+this.error_message = "Koneksi gagal: " + (err.message || "Periksa jaringan atau server.");
+console.error("Error fetch analisis:", err);
+} finally {
+this.is_processing = false;
+}
+},
+formatAnalysis(text) {
+if (!text) return '';
+return text
+.replace(/Tidak ada indikasi depresi\./g, '<span class="text-wellness-400 font-medium">Tidak ada indikasi depresi.</span>')
+.replace(/indikasi depresi/g, '<span class="text-amber-400 font-medium">indikasi depresi</span>')
+.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary-300">$1</strong>');
+}
+};
+}
+</script>
+
+</body>
+</html>
