@@ -27,6 +27,16 @@ Member team:
 
 
 ---
+# Video Demo
+
+[Video Demo](https://youtu.be/aGppmc2cv8k)
+
+
+---
+
+---
+# Screenshoot Tampilan Menty
+
 ![SS Tampilan](https://github.com/AnTS-Groups/Menty-HackathonAI/blob/main/SS/SS1.png?raw=true)
 ![SS Tampilan](https://github.com/AnTS-Groups/Menty-HackathonAI/blob/main/SS/SS2.png?raw=true)
 ![SS Tampilan](https://github.com/AnTS-Groups/Menty-HackathonAI/blob/main/SS/SS3.png?raw=true)
@@ -239,6 +249,7 @@ Buka di browser:
 - [FastAPI Tutorial](https://fastapi.tiangolo.com/)
 - [Web Audio API — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 - Prinsip WHO untuk AI & Kesehatan Mental: *Transparansi, Non-maleficence, Autonomy*
+
 
 
 
