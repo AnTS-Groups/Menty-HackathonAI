@@ -29,7 +29,7 @@ Member team:
 ---
 # Video Demo
 
-[Video Demo](https://youtu.be/QGnRM4TgwI0)
+[Video Demo](https://youtu.be/Wajg7H3etAg)
 
 
 ---
@@ -119,12 +119,15 @@ Aplikasi ini dibangun untuk:
 
 ```bash
 menty/
-├── main.py                  # Entry point FastAPI (routes, Groq logic)
-├── requirements.txt         # Dependencies (lihat di bawah)
-├── .env                     # Environment variables (contoh: GROQ_API_KEY=...)
-├── static/                  # Folder opsional untuk aset statis (belum digunakan)
-└── templates/
-    └── index.html           # UI utama — rekam, analisis, hasil
+├── requirements.txt          # Project dependencies
+├── .env                      # Environment variables (contoh: GROQ_API_KEY=...)
+│
+├── backend/                  # Backend service (FastAPI)
+│   └── main.py               # Entry point FastAPI (routes, Groq processing, API handlers)
+│
+└── frontend/
+    └── templates/
+        └── index.html        # Halaman utama: rekam audio, analisis, dan menampilkan hasil
 ```
 
 ### 🔧 `requirements.txt`
@@ -249,6 +252,7 @@ Buka di browser:
 - [FastAPI Tutorial](https://fastapi.tiangolo.com/)
 - [Web Audio API — MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
 - Prinsip WHO untuk AI & Kesehatan Mental: *Transparansi, Non-maleficence, Autonomy*
+
 
 
 
